@@ -2,14 +2,72 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Uploadcare Test</title>
+  <title>Uploadcare Display Ad Uploader</title>
+
+  <!-- Uploadcare public API key -->
   <script>
     UPLOADCARE_PUBLIC_KEY = "a51c89007d0bce21876e";
   </script>
+
+  <!-- Uploadcare widget script -->
   <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
 </head>
 <body>
-  <h1>Upload a File</h1>
-  <input type="hidden" role="uploadcare-uploader" data-clearable style="margin-top: 10px;" />
+  <h1>Upload Display Ad Files</h1>
+
+  <!-- Uploadcare input widget with validation settings -->
+  <input
+    type="hidden"
+    role="uploadcare-uploader"
+    data-images-only
+    data-multiple
+    data-max-size="500000"
+    data-clearable
+    data-validator="customImageValidator"
+  />
+
+  <!-- Custom validator script -->
+  <script>
+    function customImageValidator(fileInfo) {
+      return fileInfo.done().then(function(info) {
+        const allowedDimensions = [
+          [300, 250],
+          [728, 90],
+          [300, 600],
+          [160, 600],
+          [320, 50],
+          [320, 480],
+          [336, 280],
+          [768, 1024],
+          [848, 480],
+          [1200, 1200],
+          [900, 1600]
+        ];
+
+        const { width, height, size, mimeType } = info;
+
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        const maxSize = 500000; // 500 KB
+
+        const validType = allowedTypes.includes(mimeType);
+        const validSize = size <= maxSize;
+        const validDimensions = allowedDimensions.some(dim => width === dim[0] && height === dim[1]);
+
+        if (!validType) {
+          throw new Error("❌ File must be JPG, PNG, or GIF.");
+        }
+
+        if (!validSize) {
+          throw new Error("❌ File must be 500 KB or smaller.");
+        }
+
+        if (!validDimensions) {
+          throw new Error("❌ Image size must match one of the approved ad dimensions.");
+        }
+
+        return info;
+      });
+    }
+  </script>
 </body>
 </html>
