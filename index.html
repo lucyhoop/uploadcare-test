@@ -27,53 +27,54 @@
   />
 
   <!-- Custom validator script -->
- <script>
+<script>
   function customImageValidator(fileInfo) {
     return fileInfo.done().then(function(info) {
-      const allowedDimensions = [
-        [300, 250],
-        [728, 90],
-        [300, 600],
-        [160, 600],
-        [320, 50],
-        [320, 480],
-        [336, 280],
-        [768, 1024],
-        [848, 480],
-        [1200, 1200],
-        [900, 1600]
-      ];
+      return uploadcare.fileFrom('uploaded', info.cdnUrl + '-/info/').then(function(detailedInfo) {
+        const { width, height, size, mimeType } = detailedInfo;
 
-      const { width, height, size, mimeType } = info;
+        const allowedDimensions = [
+          [300, 250],
+          [728, 90],
+          [300, 600],
+          [160, 600],
+          [320, 50],
+          [320, 480],
+          [336, 280],
+          [768, 1024],
+          [848, 480],
+          [1200, 1200],
+          [900, 1600]
+        ];
 
-      // Round and convert to number just in case Uploadcare gives strings or floats
-      const actualWidth = Number(width);
-      const actualHeight = Number(height);
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        const maxSize = 500000; // 500 KB
 
-      console.log(`Uploaded image dimensions: ${actualWidth}x${actualHeight}`);
+        const exactWidth = Number(width);
+        const exactHeight = Number(height);
 
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-      const maxSize = 500000; // 500 KB
+        console.log(`Image dimensions: ${exactWidth}x${exactHeight}, size: ${size}, type: ${mimeType}`);
 
-      const validType = allowedTypes.includes(mimeType);
-      const validSize = size <= maxSize;
-      const validDimensions = allowedDimensions.some(
-        dim => actualWidth === dim[0] && actualHeight === dim[1]
-      );
+        const validType = allowedTypes.includes(mimeType);
+        const validSize = size <= maxSize;
+        const validDimensions = allowedDimensions.some(
+          dim => exactWidth === dim[0] && exactHeight === dim[1]
+        );
 
-      if (!validType) {
-        throw new Error("❌ File must be JPG, PNG, or GIF.");
-      }
+        if (!validType) {
+          throw new Error("❌ File must be JPG, PNG, or GIF.");
+        }
 
-      if (!validSize) {
-        throw new Error("❌ File must be 500 KB or smaller.");
-      }
+        if (!validSize) {
+          throw new Error("❌ File must be 500 KB or smaller.");
+        }
 
-      if (!validDimensions) {
-        throw new Error(`❌ Image size must exactly match one of the approved dimensions. Yours: ${actualWidth}x${actualHeight}`);
-      }
+        if (!validDimensions) {
+          throw new Error(`❌ Invalid dimensions: ${exactWidth}x${exactHeight}. Must match approved sizes exactly.`);
+        }
 
-      return info;
+        return detailedInfo;
+      });
     });
   }
 </script>
