@@ -1,51 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Uploadcare Ad Uploader</title>
+  <meta charset="UTF-8">
+  <title>Uploadcare Test</title>
   <script>
     UPLOADCARE_PUBLIC_KEY = "a51c89007d0bce21876e";
-    UPLOADCARE_LOCALE = "en";
   </script>
   <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 30px;
-    }
-  </style>
 </head>
 <body>
-  <h2>Upload Your Display Ads (Max 6)</h2>
-  <p>Only GIF, JPG, PNG | Max 500 KB | Allowed dimensions: 300x250, 728x90, 300x600, etc.</p>
-  <input
-    type="hidden"
-    role="uploadcare-uploader"
-    name="display_ads"
-    data-multiple="true"
-    data-multiple-max="6"
-    data-images-only="true"
-    data-clearable="true"
-    data-max-size="524288"
-    data-tabs="file url"
-  />
-  <script>
-    const VALID_DIMENSIONS = [
-      [300, 250], [728, 90], [300, 600], [160, 600], [320, 50], [320, 480],
-      [336, 280], [768, 1024], [848, 480], [1200, 1200], [900, 1600]
-    ];
-    uploadcare.Widget('[role=uploadcare-uploader]').onUploadComplete(fileInfo => {
-      const img = new Image();
-      img.onload = () => {
-        const isValidSize = VALID_DIMENSIONS.some(
-          ([w, h]) => img.width === w && img.height === h
-        );
-        if (!isValidSize) {
-          alert(`❌ Invalid image size: ${img.width}x${img.height}. Please upload a valid size.`);
-        }
-      };
-      img.src = fileInfo.cdnUrl;
-    });
-  </script>
+  <h1>Upload a File</h1>
+  <input type="hidden" role="uploadcare-uploader" data-clearable style="margin-top: 10px;" />
 </body>
 </html>
