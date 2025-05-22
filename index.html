@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Uploadcare Display Ad Uploader</title>
+
+  <!-- Uploadcare public API key -->
+  <script>
+    UPLOADCARE_PUBLIC_KEY = "a51c89007d0bce21876e";
+  </script>
+
+  <!-- Uploadcare widget script -->
+  <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Upload Display Ad Files</h1>
+  <p>Please upload 6 ad images that meet these criteria:</p>
+  <ul style="text-align:left; display: inline-block; text-align: left;">
+    <li>GIF, JPG, or PNG</li>
+    <li>Max file size: 500 KB</li>
+    <li>Allowed dimensions:
+      <br>300x250, 728x90, 300x600, 160x600,
+      <br>320x50, 320x480,
+      <br>Optional: 336x280, 768x1024, 848x480, 1200x1200, 900x1600
+    </li>
+  </ul>
+
+  <!-- Uploadcare input widget with validation -->
+  <input
+    type="hidden"
+    role="uploadcare-uploader"
+    data-images-only
+    data-multiple
+    data-max-size="500000"
+    data-clearable
+    data-validator="customImageValidator"
+  />
+
+  <!-- Custom validator script -->
+  <script>
+    function customImageValidator(fileInfo) {
+      return fileInfo.done().then(function(info) {
+        const allowedDimensions = [
+          [300, 250],
+          [728, 90],
+          [300, 600],
+          [160, 600],
+          [320, 50],
+          [320, 480],
+          [336, 280],
+          [768, 1024],
+          [848, 480],
+          [1200, 1200],
+          [900, 1600]
+        ];
+
+        const { width, height, size, mimeType } = info;
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        const maxSize = 500000;
+
+        if (!allowedTypes.includes(mimeType)) {
+          throw new Error("❌ File must be JPG, PNG, or GIF.");
+        }
+
+        if (size > maxSize) {
+          throw new Error("❌ File must be 500 KB or smaller.");
+        }
+
+        const isValidDimension = allowedDimensions.some(([w, h]) => width === w && height === h);
+        if (!isValidDimension) {
+          throw new Error("❌ Image size must match approved dimensions.");
+        }
+
+        return info;
+      });
+    }
+  </script>
+</body>
+</html>
