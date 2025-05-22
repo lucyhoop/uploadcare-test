@@ -15,7 +15,7 @@
 <body>
   <h1>Upload Display Ad Files</h1>
 
-  <!-- Uploadcare input widget with validation settings -->
+  <!-- Uploadcare widget input -->
   <input
     type="hidden"
     role="uploadcare-uploader"
@@ -26,13 +26,10 @@
     data-validator="customImageValidator"
   />
 
-  <!-- Custom validator script -->
-<script>
-  function customImageValidator(fileInfo) {
-    return fileInfo.done().then(function(info) {
-      return uploadcare.fileFrom('uploaded', info.cdnUrl + '-/info/').then(function(detailedInfo) {
-        const { width, height, size, mimeType } = detailedInfo;
-
+  <!-- Custom validation script -->
+  <script>
+    function customImageValidator(filePromise) {
+      return filePromise.done(function(info) {
         const allowedDimensions = [
           [300, 250],
           [728, 90],
@@ -48,35 +45,27 @@
         ];
 
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        const maxSize = 500000; // 500 KB
+        const maxSize = 500000;
 
-        const exactWidth = Number(width);
-        const exactHeight = Number(height);
-
-        console.log(`Image dimensions: ${exactWidth}x${exactHeight}, size: ${size}, type: ${mimeType}`);
+        const { width, height, size, mimeType } = info;
 
         const validType = allowedTypes.includes(mimeType);
         const validSize = size <= maxSize;
-        const validDimensions = allowedDimensions.some(
-          dim => exactWidth === dim[0] && exactHeight === dim[1]
-        );
+        const exactMatch = allowedDimensions.some(dim => width === dim[0] && height === dim[1]);
 
         if (!validType) {
           throw new Error("❌ File must be JPG, PNG, or GIF.");
         }
-
         if (!validSize) {
           throw new Error("❌ File must be 500 KB or smaller.");
         }
-
-        if (!validDimensions) {
-          throw new Error(`❌ Invalid dimensions: ${exactWidth}x${exactHeight}. Must match approved sizes exactly.`);
+        if (!exactMatch) {
+          throw new Error(`❌ Invalid dimensions: ${width}x${height}. Must exactly match one of the approved ad sizes.`);
         }
 
-        return detailedInfo;
+        return info;
       });
-    });
-  }
-</script>
+    }
+  </script>
 </body>
 </html>
